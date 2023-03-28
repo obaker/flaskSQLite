@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Add alarm</title>
+</head>
+<body>
+<form action="" method="post" class="alarmForm"<
+    <div class="timePicker">
+        <label for="alarmTime"> Enter the alarm time: </label>
+        <input type="time" id="alarmTime" name="alarmTime" min="00:00" max="23:59" required>
+    </div>
+    <div>
+    <table style="text-align:center">
+        <tr>
+        <td> <input type="checkbox" id="monday" name="days" value="128"/> </td>
+        <td> <input type="checkbox" id="tuesday" name="days" value="64"/> </td>
+        <td> <input type="checkbox" id="wednesday" name="days" value="32"/> </td>
+        <td> <input type="checkbox" id="thursday" name="days" value="16"/> </td>
+        <td> <input type="checkbox" id="friday" name="days" value="8"/> </td>
+        <td> <input type="checkbox" id="saturday" name="days" value="4"/> </td>
+        <td> <input type="checkbox" id="sunday" name="days" value="2"/> </td>
+        <td> <input type="checkbox" id="repeat" name="days" value="1"/> </td>
+        </tr>
+        <tr>
+        <td> <label for="monday">M</label> </td>
+        <td> <label for="tuesday">T</label> </td>
+        <td> <label for="wednesday">W</label> </td>
+        <td> <label for="thursday">T</label> </td>
+        <td> <label for="friday">F</label> </td>
+        <td> <label for="saturday">S</label> </td>
+        <td> <label for="sunday">S</label> </td>
+        <td> <label for="repeat">R</label> </td>
+        </tr>
+    </table>
+    <button type="submit"> Add </button>
+
+</form>
+
+</body>
+</html>

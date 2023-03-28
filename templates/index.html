@@ -38,14 +38,24 @@ function myData(alarmList)
     let text = document.getElementById("alarmTable").innerHTML;
     text = "<table>" + text;
     for (let i in alarmList){
-       text += "<tr><td>" + alarmList[i].time + "</td>";
-       text += "<td>" + alarmList[i].activeDays + "</td>";
-       text += "<td>" + alarmList[i].repeat + "</td></tr>";
+       text += `<tr><td> ${alarmList[i].time} </td>`;
+       text += `<td> ${alarmList[i].activeDays} </td>`;
+       text += `<td> ${alarmList[i].repeat} </td>`;
+       text += `<td> <button name="deleteAlarm" ${alarmList[i].alarmID}> 🗑️ </button> </td> </tr>`;
     }
     text += "</table>"
     document.getElementById("alarmTable").innerHTML = text;
 
 }
+
+//deleteAlarm(alarm) {
+//    const path = `http://localhost:5000/delete/${alarmID}`;
+//    axios.delete(path)
+//    .then(() => {
+//        this.message = 'Alarm deleted';
+//        this.showMessage = true;
+//    }
+
 </script>
 </body>
 </html>
