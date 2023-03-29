@@ -65,13 +65,14 @@ def addAlarm(time, dow, radio):
     c.execute("INSERT INTO alarms VALUES (NULL, '" + time + "' , "+str(dow)+", "+str(radio)+")")
     db.commit()
     db.close()
-    print("Alarm added to DB.")
 
 
 def removeAlarm(alarmID):
     db = sqlite3.connect(dbFile)
     c = db.cursor()
     c.execute("DELETE FROM alarms WHERE alarm_ID = " + alarmID)
+    db.commit()
+    db.close()
 
 
 def refreshAlarmList(alarms):
@@ -128,12 +129,15 @@ def addForm():
         return redirect(url_for('home'))
 
 
-@app.route('/delete/<alarmID>', methods=['PUT', 'DELETE'])
-def deleteAlarm(alarmID):
+@app.route('/delete', methods=['POST'])
+def deleteAlarm():
     response_object = {'status': 'success'}
-    if request.method == 'DELETE':
-        removeAlarm(alarmID)
-        response_object['message'] = 'Alarm deleted'
+    if request.method == 'POST':
+        if request.form['alarmID'].isdigit():
+            alarmID = request.form['alarmID']
+            removeAlarm(alarmID)
+            response_object['message'] = 'Alarm deleted'
+            refreshAlarmList(alarms)
     return jsonify(response_object)
 
 
