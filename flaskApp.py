@@ -94,6 +94,11 @@ def home():
     return render_template('index.html')
 
 
+@app.route('/vue')
+def vueDemo():
+    return render_template('vueFlaskCORS.html')
+
+
 @app.route('/alarms', methods=['GET', 'POST'])
 def alarmsRest():
     response_object = {'status': 'success'}

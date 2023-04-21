@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-main>
+      <li v-for="alarm in alarmList">
+        <v-card max-width = "600" outlined>
+          <v-card-title> <v-btn elevation="0" text large class="text-h5"> [[  alarm.time  ]] </v-btn> </v-card-title>
+          <v-card-text> <p v-if=alarm.activeDays.includes('Monday')> Mon </p> </v-card-text>
+        </v-card>
+      </li>
+      <v-dialog v-model="dialog" width="auto">
+
+        <template v-slot:activator="{ on }">
+          <v-btn
+          class = "justify-content-center"
+          elevation="0"
+          fab
+          outlined
+          large
+          bottom
+          fixed
+          v-on="on"
+
+        >
+        <v-icon>mdi-plus </v-icon>
+        </v-btn>
+        </template>
+        <v-container>
+        <v-row>
+        <v-time-picker
+        format="24hr"
+        v-model="newAlarm"
+        >
+        </v-row>
+        <v-row>
+        <v-btn-toggle
+          v-model="newDays"
+          multiple
+          mandatory
+          density="comfortable"
+        >
+        <v-btn
+        text
+        outlined
+        small
+        fab
+        icon
+        :value=128
+        >
+        M
+        </v-btn>
+        <v-btn
+        text
+        outlined
+        small
+        fab
+        :value=64
+        >
+        T
+        </v-btn>
+        <v-btn
+        text
+        outlined
+        small
+        fab
+        :value=32
+        >
+        W
+        </v-btn>
+        <v-btn
+        text
+        outlined
+        small
+        fab
+        :value=16
+        >
+        T
+        </v-btn>
+<v-btn
+        text
+        outlined
+        small
+        fab
+        :value=8
+        >
+        F
+        </v-btn>
+        <v-btn
+        text
+        outlined
+        small
+        fab
+        :value=4
+        >
+        S
+        </v-btn>
+        <v-btn
+        text
+        outlined
+        small
+        fab
+        :value=2
+        >
+        S
+        </v-btn>
+        </v-btn-toggle>
+        </v-row>
+        <v-row>
+
+          <v-btn
+          text
+          @click="dialog = false"
+          >
+          Cancel
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+          text
+          @click="addAlarm(newAlarm, newDays)"
+          >
+          Save
+          </v-btn>
+          </v-time-picker>
+          </v-row>
+              <pre class="pt-2">{{ newDays }}</pre>
+          </v-container>
+
+      </v-dialog>
+          </v-main>
+
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      delimiters: ['[[', ']]'],
+      vuetify: new Vuetify(),
+      data() {
+        return {
+        time:'00:00',
+        newAlarm:'00:00',
+        newDays: [],
+        dialog: false,
+        alarmList: [],
+        }
+      },
+      mounted() {
+        this.loadAlarms();
+      },
+      methods: {
+        addAlarm(alarmTime, alarmDays) {
+          console.log(alarmTime);
+          console.log(alarmDays);
+        },
+        loadAlarms(){
+          fetch('./alarms')
+            .then(response => response.json())
+            .then(data => (this.alarmList = data));
+            }
+          }
+          })
+  </script>
+</body>
+</html>
