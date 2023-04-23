@@ -13,7 +13,14 @@
       <li v-for="alarm in alarmList">
         <v-card max-width = "600" outlined>
           <v-card-title> <v-btn elevation="0" text large class="text-h5"> [[  alarm.time  ]] </v-btn> </v-card-title>
-          <v-card-text> <p v-if=alarm.activeDays.includes('Monday')> Mon </p> </v-card-text>
+          <v-card-text> <span v-if=alarm.activeDays.includes('Monday')> Mon </span>
+          <span v-if=alarm.activeDays.includes('Tuesday')> Tue </span>
+          <span v-if=alarm.activeDays.includes('Wednesday')> Wed </span>
+          <span v-if=alarm.activeDays.includes('Thursday')> Thu </span>
+          <span v-if=alarm.activeDays.includes('Friday')> Fri </span>
+          <span v-if=alarm.activeDays.includes('Saturday')> Sat </span>
+          <span v-if=alarm.activeDays.includes('Sunday')> Sun </span>
+          </v-card-text>
         </v-card>
       </li>
       <v-dialog v-model="dialog" width="auto">
