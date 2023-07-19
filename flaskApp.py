@@ -5,7 +5,8 @@ from time import localtime, strftime, sleep
 from sys import exit, argv
 from flask import Flask, request, render_template, jsonify, redirect, url_for
 from flask_cors import CORS
-
+import threading
+import os
 dbFile = "clock.db"
 
 weekdayNumbers = [128, 64, 32, 16, 8, 4, 2]
@@ -86,11 +87,24 @@ app.config.from_object(__name__)
 CORS(app, resources={r'/*': {'origins': '*'}})
 alarms = []
 refreshAlarmList(alarms)
-
+timeStamp = os.stat(dbFile).st_mtime
 """ Defines the routes flask serves
     If no methods are provided, route
     only responds to GET request
         """
+
+
+def watchingDB(timeStamp):
+    while True:
+        stamp = os.stat(dbFile).st_mtime
+        if stamp != timeStamp:
+            timeStamp = stamp
+            refreshAlarmList(alarms)
+            sleep(0.5)
+
+
+watchDB = threading.Thread(target=watchingDB, name="WatchDB", daemon=True,
+          kwargs={'timeStamp': os.stat(dbFile).st_mtime}).start()
 
 
 @app.route('/')
@@ -114,7 +128,6 @@ def alarmsRest():
         try:
             addAlarm(time[0], dow[0], radio[0])
             response_object['message'] = 'alarm added!\n'
-            refreshAlarmList(alarms)
         except:
             response_object['message'] = 'DB write fail\n'
         return response_object['message']
@@ -132,7 +145,6 @@ def addForm():
         dow = sum(list(map(int, activeDays)))
         try:
             addAlarm(time, dow, 0)
-            refreshAlarmList(alarms)
         except:
             print("db error")
         return redirect(url_for('home'))
@@ -146,7 +158,6 @@ def deleteAlarm():
             alarmID = request.form['alarmID']
             removeAlarm(alarmID)
             response_object['message'] = 'Alarm deleted'
-            refreshAlarmList(alarms)
     return jsonify(response_object)
 
 

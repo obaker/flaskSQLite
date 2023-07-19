@@ -10,7 +10,7 @@
   <div id="app">
     <v-app>
       <v-main>
-      <li v-for="alarm in alarmList">
+      <li v-for="alarm in alarmList" :key=alarm.alarmID>
         <v-card max-width = "600" outlined>
           <v-card-title> <v-btn elevation="0" text large class="text-h5"> [[  alarm.time  ]] </v-btn> </v-card-title>
           <v-card-text> <span v-if=alarm.activeDays.includes('Monday')> Mon </span>
@@ -21,7 +21,7 @@
           <span v-if=alarm.activeDays.includes('Saturday')> Sat </span>
           <span v-if=alarm.activeDays.includes('Sunday')> Sun </span>
           </v-card-text>
-          <v-btn @click="deleteAlarm(alarm.alarmID), loadAlarms();"> Delete </v-btn>
+          <v-btn @click="deleteAlarm(alarm.alarmID)"> Delete </v-btn>
         </v-card>
       </li>
       <v-dialog v-model="dialog" width="auto">
@@ -66,7 +66,7 @@
         small
         fab
         icon
-        value="Monday"
+        value=128
         >
         M
         </v-btn>
@@ -75,7 +75,7 @@
         outlined
         small
         fab
-        value="Tuesday"
+        value=64
         >
         T
         </v-btn>
@@ -84,7 +84,7 @@
         outlined
         small
         fab
-        value="Wednesday"
+        value=32
         >
         W
         </v-btn>
@@ -93,7 +93,7 @@
         outlined
         small
         fab
-        value="Thursday"
+        value=16
         >
         T
         </v-btn>
@@ -102,7 +102,7 @@
         outlined
         small
         fab
-        value="Friday"
+        value=8
         >
         F
         </v-btn>
@@ -111,7 +111,7 @@
         outlined
         small
         fab
-        value="Saturday"
+        value=4
         >
         S
         </v-btn>
@@ -120,7 +120,7 @@
         outlined
         small
         fab
-        value="Sunday"
+        value=2
         >
         S
         </v-btn>
@@ -137,7 +137,7 @@
           <v-spacer></v-spacer>
           <v-btn
           text
-          @click="addAlarm(newAlarm, newDays)"
+          @click="addAlarm(newAlarm, newDays), loadAlarms()"
           >
           Save
           </v-btn>
@@ -168,8 +168,12 @@
         alarmList: [],
         }
       },
+
       mounted() {
         this.loadAlarms();
+        setInterval(function () {
+          this.loadAlarms();
+        }.bind(this), 30000);
       },
       methods: {
       // Currently only outputs to console, needs change of format before
@@ -183,23 +187,13 @@
             //repeat: "False",
             radio: 0,
             }))
-          try {
-            const response = await fetch('./alarms', {
-              method: "POST",
-              headers: {"Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                time: alarmTime,
-                activeDays: 128,
-                //repeat: "False",
-                radio: 0,
-            }),
-            });
-            const result = await response.json();
-            console.log("Success:", result);
-            } catch (error) {
-              console.error("Error:", error);
-              }
+          var addAlarmForm = new FormData
+          addAlarmForm.append("alarmTime", alarmTime);
+          addAlarmForm.append("days", alarmDays);
+          fetch("/add", {
+            method: "POST",
+            body: addAlarmForm,
+          });
         },
         async deleteAlarm(alarmID) {
           console.log(alarmID);
@@ -211,11 +205,11 @@
           });
         },
 
-        loadAlarms(){
-          fetch('./alarms')
-            .then(response => response.json())
-            .then(data => (this.alarmList = data));
-            }
+        async loadAlarms(){
+          const response = await fetch("./alarms");
+          const decodedJSON = await response.json();
+          this.alarmList = decodedJSON;
+          }
           }
           })
   </script>
