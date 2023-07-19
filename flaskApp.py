@@ -20,7 +20,6 @@ class Alarm:
         self.alarmID = alarmID
         self.time = time
         self.activeDays = activeDays
-
         self.repeat = repeat
         self.radioStation = radioStation
 
@@ -87,6 +86,11 @@ app.config.from_object(__name__)
 CORS(app, resources={r'/*': {'origins': '*'}})
 alarms = []
 refreshAlarmList(alarms)
+
+""" Defines the routes flask serves
+    If no methods are provided, route
+    only responds to GET request
+        """
 
 
 @app.route('/')

@@ -21,6 +21,7 @@
           <span v-if=alarm.activeDays.includes('Saturday')> Sat </span>
           <span v-if=alarm.activeDays.includes('Sunday')> Sun </span>
           </v-card-text>
+          <v-btn @click="deleteAlarm(alarm.alarmID), loadAlarms();"> Delete </v-btn>
         </v-card>
       </li>
       <v-dialog v-model="dialog" width="auto">
@@ -35,7 +36,6 @@
           bottom
           fixed
           v-on="on"
-
         >
         <v-icon>mdi-plus </v-icon>
         </v-btn>
@@ -48,10 +48,16 @@
         >
         </v-row>
         <v-row>
+<!--        <v-btn  fab x-small value="Monday" v-model="newDays">
+        M </v-btn>
+        <v-btn  fab x-small value="Tuesday" v-model="newDays">
+        T </v-btn>-->
         <v-btn-toggle
           v-model="newDays"
           multiple
           mandatory
+          fab
+          x-small
           density="comfortable"
         >
         <v-btn
@@ -60,7 +66,7 @@
         small
         fab
         icon
-        :value=128
+        value="Monday"
         >
         M
         </v-btn>
@@ -69,7 +75,7 @@
         outlined
         small
         fab
-        :value=64
+        value="Tuesday"
         >
         T
         </v-btn>
@@ -78,7 +84,7 @@
         outlined
         small
         fab
-        :value=32
+        value="Wednesday"
         >
         W
         </v-btn>
@@ -87,7 +93,7 @@
         outlined
         small
         fab
-        :value=16
+        value="Thursday"
         >
         T
         </v-btn>
@@ -96,7 +102,7 @@
         outlined
         small
         fab
-        :value=8
+        value="Friday"
         >
         F
         </v-btn>
@@ -105,7 +111,7 @@
         outlined
         small
         fab
-        :value=4
+        value="Saturday"
         >
         S
         </v-btn>
@@ -114,7 +120,7 @@
         outlined
         small
         fab
-        :value=2
+        value="Sunday"
         >
         S
         </v-btn>
@@ -166,10 +172,45 @@
         this.loadAlarms();
       },
       methods: {
-        addAlarm(alarmTime, alarmDays) {
+      // Currently only outputs to console, needs change of format before
+      // sending to database
+        async addAlarm(alarmTime, alarmDays) {
           console.log(alarmTime);
           console.log(alarmDays);
+          console.log(JSON.stringify({
+            time: alarmTime,
+            activeDays: 128,
+            //repeat: "False",
+            radio: 0,
+            }))
+          try {
+            const response = await fetch('./alarms', {
+              method: "POST",
+              headers: {"Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                time: alarmTime,
+                activeDays: 128,
+                //repeat: "False",
+                radio: 0,
+            }),
+            });
+            const result = await response.json();
+            console.log("Success:", result);
+            } catch (error) {
+              console.error("Error:", error);
+              }
         },
+        async deleteAlarm(alarmID) {
+          console.log(alarmID);
+          var deleteAlarmForm = new FormData();
+          deleteAlarmForm.append("alarmID", alarmID);
+          fetch("/delete", {
+            method: "POST",
+            body: deleteAlarmForm,
+          });
+        },
+
         loadAlarms(){
           fetch('./alarms')
             .then(response => response.json())
