@@ -171,9 +171,9 @@
 
       mounted() {
         this.loadAlarms();
-        setInterval(function () {
-          this.loadAlarms();
-        }.bind(this), 30000);
+        // setInterval(function () {
+        //   this.loadAlarms();
+        // }.bind(this), 30000);
       },
       methods: {
       // Currently only outputs to console, needs change of format before
@@ -202,7 +202,9 @@
           fetch("/delete", {
             method: "POST",
             body: deleteAlarmForm,
-          });
+          }),
+          await delay(1000);
+          this.loadALarms();
         },
 
         async loadAlarms(){

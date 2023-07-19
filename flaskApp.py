@@ -7,6 +7,7 @@ from flask import Flask, request, render_template, jsonify, redirect, url_for
 from flask_cors import CORS
 import threading
 import os
+from inotify_simple import INotify, flags
 dbFile = "clock.db"
 
 weekdayNumbers = [128, 64, 32, 16, 8, 4, 2]
@@ -87,24 +88,23 @@ app.config.from_object(__name__)
 CORS(app, resources={r'/*': {'origins': '*'}})
 alarms = []
 refreshAlarmList(alarms)
-timeStamp = os.stat(dbFile).st_mtime
+inotify = INotify()
+wd = inotify.add_watch(dbFile, flags.MODIFY)
+
 """ Defines the routes flask serves
     If no methods are provided, route
     only responds to GET request
         """
 
 
-def watchingDB(timeStamp):
+def watchingDB():
     while True:
-        stamp = os.stat(dbFile).st_mtime
-        if stamp != timeStamp:
-            timeStamp = stamp
+        for event in inotify.read():
             refreshAlarmList(alarms)
-            sleep(0.5)
 
 
-watchDB = threading.Thread(target=watchingDB, name="WatchDB", daemon=True,
-          kwargs={'timeStamp': os.stat(dbFile).st_mtime}).start()
+watchDB = threading.Thread(target=watchingDB, name="WatchDB",
+                           daemon=True,).start()
 
 
 @app.route('/')
