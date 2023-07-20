@@ -155,7 +155,7 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
   <script>
-    new Vue({
+    var vm = new Vue({
       el: '#app',
       delimiters: ['[[', ']]'],
       vuetify: new Vuetify(),
@@ -166,14 +166,29 @@
         newDays: [],
         dialog: false,
         alarmList: [],
+        alarmSocket: null
         }
       },
-
       mounted() {
         this.loadAlarms();
+        this.alarmSocket.onmessage = function(event) {
+          console.log(event.data);
+          let newAlarms = new Array(JSON.parse(event.data));
+          vm.alarmList = newAlarms[0];
+          console.log(vm.alarmList);
+        }
+        this.alarmSocket.onopen = function(event) {
+          console.log(event);
+          console.log("Successfully connected");
+        }
         // setInterval(function () {
         //   this.loadAlarms();
         // }.bind(this), 30000);
+      },
+      created: function() {
+        console.log("starting connection")
+        this.alarmSocket = new WebSocket("ws://" + window.location.host + "/alarmSocket");
+
       },
       methods: {
       // Currently only outputs to console, needs change of format before
@@ -190,7 +205,7 @@
           var addAlarmForm = new FormData
           addAlarmForm.append("alarmTime", alarmTime);
           addAlarmForm.append("days", alarmDays);
-          fetch("/add", {
+          fetch("./add", {
             method: "POST",
             body: addAlarmForm,
           });
@@ -199,21 +214,18 @@
           console.log(alarmID);
           var deleteAlarmForm = new FormData();
           deleteAlarmForm.append("alarmID", alarmID);
-          fetch("/delete", {
+          fetch("./delete", {
             method: "POST",
             body: deleteAlarmForm,
-          }),
-          await delay(1000);
-          this.loadALarms();
-        },
+          })},
 
         async loadAlarms(){
           const response = await fetch("./alarms");
           const decodedJSON = await response.json();
-          this.alarmList = decodedJSON;
+          vm.alarmList = decodedJSON;
           }
-          }
-          })
+          },
+  })
   </script>
 </body>
 </html>

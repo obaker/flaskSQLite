@@ -8,6 +8,8 @@ from flask_cors import CORS
 import threading
 import os
 from inotify_simple import INotify, flags
+from flask_sock import Sock
+import queue
 dbFile = "clock.db"
 
 weekdayNumbers = [128, 64, 32, 16, 8, 4, 2]
@@ -39,7 +41,6 @@ def readDB():  # Reads the DB storing alarms in a list of Alarm
     weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday",
                 "Friday", "Saturday", "Sunday"]
     db = sqlite3.connect(dbFile)
-    # c = db.cursor()
     alarmList = []
     for dow, time, alarmID, radio in db.execute(
      "SELECT dow, time, alarm_ID, radio FROM alarms ORDER BY time ASC;"):
@@ -84,27 +85,36 @@ def refreshAlarmList(alarms):
 
 
 app = Flask(__name__)
+sock = Sock(app)
 app.config.from_object(__name__)
 CORS(app, resources={r'/*': {'origins': '*'}})
 alarms = []
 refreshAlarmList(alarms)
 inotify = INotify()
 wd = inotify.add_watch(dbFile, flags.MODIFY)
-
+sendAlarms = threading.Event()
 """ Defines the routes flask serves
     If no methods are provided, route
     only responds to GET request
         """
 
 
-def watchingDB():
+def watchingDB(sendAlarms):
     while True:
         for event in inotify.read():
             refreshAlarmList(alarms)
+            sendAlarms.set()
 
 
-watchDB = threading.Thread(target=watchingDB, name="WatchDB",
-                           daemon=True,).start()
+watchDB = threading.Thread(target=watchingDB, name="WatchDB", daemon=True, args=(sendAlarms,)).start()
+
+
+@sock.route('/alarmSocket')
+def alarmSocket(sock):
+    while True:
+        if sendAlarms.is_set():
+            sock.send(json.dumps(alarms))
+            sendAlarms.clear()
 
 
 @app.route('/')
