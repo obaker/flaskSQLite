@@ -24,7 +24,7 @@
           <v-btn @click="deleteAlarm(alarm.alarmID)"> Delete </v-btn>
         </v-card>
       </li>
-      <v-dialog v-model="dialog" width="auto">
+      <v-dialog v-model="dialog" width="auto" @input="value => value && $refs.picker && ($refs.picker.selectingHour = true)">
 
         <template v-slot:activator="{ on }">
           <v-btn
@@ -45,7 +45,9 @@
         <v-time-picker
         format="24hr"
         v-model="newAlarm"
+        ref="picker"
         >
+        </v-time-picker>
         </v-row>
         <v-row>
 <!--        <v-btn  fab x-small value="Monday" v-model="newDays">
@@ -141,9 +143,7 @@
           >
           Save
           </v-btn>
-          </v-time-picker>
           </v-row>
-              <pre class="pt-2">{{ newDays }}</pre>
           </v-container>
 
       </v-dialog>
@@ -221,6 +221,8 @@
           vm.newAlarm = '00:00';
           vm.newDays = [];
           vm.dialog = false;
+          // this.picker.selecting = selectingTimes.hours
+
         },
         async deleteAlarm(alarmID) {
           console.log(alarmID);
