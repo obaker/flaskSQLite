@@ -9,7 +9,6 @@ import threading
 import os
 from inotify_simple import INotify, flags
 from flask_sock import Sock
-import queue
 dbFile = "clock.db"
 
 weekdayNumbers = [128, 64, 32, 16, 8, 4, 2]
@@ -117,6 +116,21 @@ def alarmSocket(sock):
             sendAlarms.clear()
 
 
+#
+# def socketReceiver(sock):
+#     data = json.loads(sock.receive())
+#     print(data)
+#     print(data["command"])
+#     match data["command"]:
+#         case "add":
+#             print("Adding new alarm")
+#             addAlarm(data["time"], sum(data["activeDays"]), data["radio"])
+#         case "delete":
+#             print("Deleting alarm")
+#         case "edit":
+#             print("Editing alarm")
+
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -131,15 +145,17 @@ def vueDemo():
 def alarmsRest():
     response_object = {'status': 'success'}
     if request.method == 'POST':
-        post_data = request.get_json()
-        time = post_data.get('time'),
-        dow = post_data.get('dow'),
-        radio = post_data.get('radio')
+        postData = request.get_json()
+        print(postData)
+        time = postData.get('time')
+        dow = sum(postData.get('activeDays'))
+        radio = postData.get('radio')
+        repeat = postData.get('repeat')
         try:
-            addAlarm(time[0], dow[0], radio[0])
-            response_object['message'] = 'alarm added!\n'
+            addAlarm(time, dow, radio)
+            response_object['message'] = {"response": "ok"}
         except:
-            response_object['message'] = 'DB write fail\n'
+            response_object['message'] = {"response": "fail"}
         return response_object['message']
     if request.method == 'GET':
         return alarms
