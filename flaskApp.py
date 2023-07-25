@@ -68,6 +68,15 @@ def addAlarm(time, dow, radio):
     db.close()
 
 
+def editAlarm(alarmID, time, dow, radio):
+    db = sqlite3.connect(dbFile)
+    c = db.cursor()
+    c.execute("UPDATE alarms SET time = '" + time + "', dow = " + str(dow) +
+              ", radio = " + str(radio) + " WHERE alarm_ID = " + str(alarmID) + ";")
+    db.commit()
+    db.close()
+
+
 def removeAlarm(alarmID):
     db = sqlite3.connect(dbFile)
     c = db.cursor()
@@ -151,11 +160,16 @@ def alarmsRest():
         dow = sum(postData.get('activeDays'))
         radio = postData.get('radio')
         repeat = postData.get('repeat')
-        try:
-            addAlarm(time, dow, radio)
+        if postData.get('alarmID'):
+            print("Editing alarm")
+            editAlarm(postData.get('alarmID'), time, dow, radio)
             response_object['message'] = {"response": "ok"}
-        except:
-            response_object['message'] = {"response": "fail"}
+        else:
+            try:
+                addAlarm(time, dow, radio)
+                response_object['message'] = {"response": "ok"}
+            except:
+                response_object['message'] = {"response": "fail"}
         return response_object['message']
     if request.method == 'GET':
         return alarms
